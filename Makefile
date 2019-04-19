@@ -1,17 +1,22 @@
 name = snif
 obj-m += $(name).o
+.phony: all clean unload load build app1
 all:
-	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+#	if [[$(lsmod | grep nc_kernel_module)]] then
+#	make unload
+	make build
+	make load
+	make clean
 clean:
 	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) clean
-upload:
-	sudo insmod $(name).ko
-end:
+unload:
 	sudo rmmod $(name)
-	make clean
-start:
-	make all
-	make upload
-test:
-	make upload
-	make end
+unloadFORCE:
+	sudo rmmod --force $(name)
+load:
+	sudo insmod $(name).ko
+build:
+	make -C /lib/modules/$(shell uname -r)/build M=$(PWD) modules
+
+app1_:
+	g++ -Wall -O3 --std=c++17 app1.cpp -o app1
